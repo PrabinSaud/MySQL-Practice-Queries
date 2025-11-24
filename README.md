@@ -1,1 +1,1 @@
-# netflix-data-analysis-sql
+# MySQL Learning & Query Practice Repo
