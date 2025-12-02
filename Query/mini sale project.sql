@@ -210,3 +210,41 @@ ON o.product_id = p.product_id
 GROUP BY o.product_id
 HAVING SUM(o.quantity * p.price) > 500;
     
+    
+    /* ==============================
+   BONUS TASKS
+   ============================== */
+
+/* 16. Find the top 3 best-selling products */
+SELECT
+o.product_id,
+SUM(o.quantity * p.price) as TotalRevenue
+FROM orders as o
+LEFT JOIN products as p
+ON o.product_id = p.product_id
+GROUP BY o.product_id
+ORDER BY Totalrevenue desc limit 3;
+
+
+/* 17. Find customers who never placed an order */
+SELECT 
+c.customer_id,
+c.customer_name
+FROM customers AS c
+LEFT JOIN orders AS o
+ON c.customer_id = o.customer_id
+LEFT JOIN products AS p
+ON o.product_id = p.product_id
+WHERE o.order_id is null;
+
+
+/* 18. Find the most popular product category */
+
+SELECT 
+category,
+count(*) AS PopularCategory
+FROM orders AS o
+LEFT JOIN products AS p
+ON o.product_id = p.product_id
+GROUP BY p.category 
+Limit 1;
