@@ -84,71 +84,165 @@ END as pricetag
 FROM products
 ORDER BY price DESC;
 
-/* 6. For each customer, show:
-      total orders = 0 → 'No Orders'
-      1–3 orders → 'New Customer'
-      >3 orders → 'Regular Customer'. */
-
-/* 7. Show stock status (assume field stock_qty exists):
-      stock >= 50 → 'High Stock'
-      20–49 → 'Moderate Stock'
-      < 20 → 'Low Stock'. */
-
+	
 /* 8. Label orders based on revenue (quantity * price):
       >200 → 'High Value'
       50–200 → 'Medium Value'
       <50 → 'Low Value'. */
+SELECT 
+product_id,
+product_name,
+category,
+quantity,
+price,
+quantity * price AS revenue,
+CASE
+	WHEN quantity * price > 5000 THEN 'High Value'
+    WHEN quantity * price BETWEEN 3000 AND 5000 THEN 'Medium Value'
+    ELSE 'Low value'
+END AS Price_Label
+FROM products;
+      
 
 /* 9. Tag products based on category:
       Dairy, Bakery → 'Food'
       Household → 'Home Product'
       Others → 'Misc'. */
 
+SELECT 
+product_id,
+product_name,
+category,
+CASE
+	WHEN category IN ('Dairy', 'Bakery') THEN 'Food'
+	WHEN category = 'Household' THEN 'Home Product'
+	ELSE 'Misc'
+END AS tag
+FROM products;
+
+
 /* 10. Mark orders as:
        ordered on weekend → 'Weekend Sale'
        ordered on weekday → 'Weekday Sale'. */
+
+SELECT
+order_id,
+customer_id,
+order_date,
+CASE
+	WHEN DAYOFWEEK(order_date) IN (1, 7) THEN 'Weekend Sale'
+	ELSE 'Weekday Sale'
+END AS sale_type
+FROM orders;
+
 
 /* 11. Classify product names:
        containing 'Pack' → 'Pack Item'
        containing 'Bottle' → 'Beverage'
        else → 'General'. */
+SELECT
+product_id,
+product_name,
+CASE
+	WHEN product_name LIKE '%Pack%' THEN 'Pack Item'
+	WHEN product_name LIKE '%Bottle%' THEN 'Beverage'
+	ELSE 'General'
+END AS name_type
+FROM products;
+
+       
 
 /* 12. For each price, label:
        divisible by 5 → 'Rounded Price'
        else → 'Odd Price'. */
+       
+SELECT
+product_id,
+product_name,
+price,
+CASE
+	WHEN price % 5 = 0 THEN 'Rounded Price'
+	ELSE 'Odd Price'
+END AS price_label
+FROM products;
+
 
 /* 13. For each customer:
        name starting with A–M → 'Group 1'
        name N–Z → 'Group 2'. */
+       
+SELECT 
+customer_id,
+customer_name,
+CASE
+	WHEN LEFT(customer_name, 1) BETWEEN 'A' AND 'M' THEN 'Group 1'
+	ELSE 'Group 2'
+END AS customer_group
+FROM customers;
 
-/* 14. Identify best seller:
-       highest total quantity sold → 'Top Product'
-       else → 'Normal Product'. */
 
 /* 15. Classify categories by average price:
        avg price > 70 → 'High Cost Category'
        40–70 → 'Medium Cost Category'
        < 40 → 'Low Cost Category'. */
+       
+SELECT
+category,
+AVG(price) AS avg_price,
+CASE
+	WHEN AVG(price) > 70 THEN 'High Cost Category'
+	WHEN AVG(price) BETWEEN 40 AND 70 THEN 'Medium Cost Category'
+	ELSE 'Low Cost Category'
+END AS category_type
+FROM products
+GROUP BY category;
+
 
 /* 16. For each order:
        if product is Grocery → add label 'Daily Use'
        if product is Snack → 'Snack Item'
        else → 'Other Item'. */
 
+SELECT
+o.order_id,
+p.product_name,
+p.category,
+CASE
+	WHEN p.category = 'Grocery' THEN 'Daily Use'
+	WHEN p.category = 'Snack' THEN 'Snack Item'
+	ELSE 'Other Item'
+END AS usage_type
+FROM orders AS o
+LEFT JOIN products AS p
+ON o.product_id = p.product_id;
+
+
 /* 17. Mark quantity as:
        even → 'Even Quantity'
        odd → 'Odd Quantity'. */
+       
+SELECT
+product_id,
+product_name,
+quantity,
+CASE
+	WHEN quantity % 2 = 0 THEN 'Even Quantity'
+	ELSE 'Odd Quantity'
+END AS number_type
+FROM products;
 
-/* 18. Label products by name length:
-       length > 12 → 'Long Name'
-       6–12 → 'Medium Name'
-       < 6 → 'Short Name'. */
-
-/* 19. Flag expensive categories:
-       household & snack categories avg price > 50 → 'Expensive Category'
-       else → 'Normal Category'. */
 
 /* 20. For each order, show:
        if no matching product → 'Invalid Product'
        else → 'Valid Product'. */
+SELECT
+    o.order_id,
+    o.product_id,
+    CASE
+        WHEN p.product_id IS NULL THEN 'Invalid Product'
+        ELSE 'Valid Product'
+    END AS product_status
+FROM orders AS o
+LEFT JOIN products AS p
+ON o.product_id = p.product_id;
 
