@@ -1,4 +1,4 @@
-
+use practicsql;
 /*-------- Window Aggreation Function --------------*/
 
 -- Find the average sales 
