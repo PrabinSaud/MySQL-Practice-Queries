@@ -94,3 +94,32 @@ FirstName,
 Salary
 from employees
 where Gender ='F' and Salary > any (select Salary from employees where Gender='M');
+
+
+			-- CORELATED and NONCORELATERD SUBQUERY
+
+-- Show the details of orders made by customer from USA using corelated subquery
+select 
+* 
+from orders as o
+where exists(select 
+			*
+			from customers as c
+			where Country = 'USA' 
+            and o.CustomerID = c.CustomerID);
+
+-- Show the details of orders made by customer not from USA using corelated subquery
+select 
+* 
+from orders as o
+where not exists(select 
+			*
+			from customers as c
+			where Country = 'USA' 
+            and o.CustomerID = c.CustomerID);
+            
+-- Show all customer details and find the total orders of each customer using non corelated subquery
+select 
+* ,
+(select count(*) from orders as o  where o.CustomerID = c.CustomerID)as Totalorders
+from customers as c;
