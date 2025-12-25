@@ -156,3 +156,122 @@ having count(*) >(
 		from orders
 		group by CustomerID) t
 		);
+
+
+
+/* =====================================================
+		EASY CTE PRACTICE QUESTIONS (BASIC LEVEL)
+   ===================================================== */
+
+-- 1. Create a CTE that selects all rows from Orders.
+with CTEorders as
+(
+select 
+* from orders
+)
+select * from CTEorders;
+
+-- 2. Create a CTE that selects only CustomerID and OrderID from Orders.
+with CTEorders as
+(
+select 
+CustomerID,
+OrderID
+ from orders
+)
+select * from CTEorders;
+
+-- 3. Create a CTE that counts total orders per customer.
+with CTEorders as
+(
+select 
+CustomerID,
+Count(*) as TotalCount
+ from orders
+ group by CustomerID
+)
+select * from CTEorders;
+
+-- 4. Create a CTE that filters orders with Quantity greater than 2.
+with CTEorders as
+(
+select 
+OrderID,
+Quantity
+from orders
+where Quantity > 2
+)
+select * from CTEorders;
+
+-- 5. Create a CTE that selects customers from a specific country.
+with CTEcustomers as
+(
+select 
+CustomerID,
+Country
+from customers
+having Country ='USA'
+)
+select * from CTEcustomers;
+
+-- 6. Create a CTE that combines Orders and OrdersArchive.
+with CTEorders as
+(
+select * from orders
+union all
+select * from ordersarchive as a
+)
+select * from CTEorders;
+
+-- 7. Create a CTE that calculates total Quantity per ProductID.
+with CTEorders as
+(
+select 
+ProductID,
+count(Quantity) as TotalQuantity
+from orders
+group by ProductID
+)
+select * from CTEorders;
+
+-- 8. Create a CTE that finds customers with more than one order.
+
+with cteorders as (
+select 
+customerid,
+count(*) as totalorders
+from orders
+group by customerid
+having count(*) > 1
+)
+select
+c.customerid,
+c.firstname,
+c.lastname,
+cte.totalorders
+from customers c
+inner join cteorders cte
+on c.customerid = cte.customerid;
+
+-- 9. Create a CTE that retrieves all orders placed after a given date and display their OrderID and OrderDate.
+
+with cteorders as (
+select 
+OrderID,
+OrderDate as CurrentDate,
+lead(OrderDate) over()as AfterDate
+from orders
+order by OrderID, OrderDate
+)
+select 
+OrderID,
+AfterDate
+from cteorders;
+
+-- 10. Create a CTE that selects distinct CustomerIDs from Orders.
+with cteorders as (
+select distinct
+*
+from customers
+)
+select * from cteorders;
