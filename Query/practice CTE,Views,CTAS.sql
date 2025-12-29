@@ -116,29 +116,114 @@ order by level, employeeid;
 /* 6. Use multiple CTEs to:
       - calculate total sales per product
       - rank products based on total sales */
+with cteproduct as
+(
+select 
+ProductID,
+sum( Quantity * Sales) as TotalSales
+from orders
+group by productID
+),
+cterank as
+(
+select 
+ProductID,
+TotalSales,
+rank() over(order by TotalSales desc) as Ranks
+from cteproduct 
+)
+select 
+*
+from cterank;
 
 /* -------------------- VIEW -------------------- */
 
 /* 7. Create a view that shows order id, customer name,
       product name, quantity, price, and total order amount */
+create view details as
+(
+select
+o.OrderID,
+concat(coalesce( c.FirstName, ' '),' ',coalesce(c.LastName,' ')) as CustomerName,
+p.Product,
+o.Quantity,
+p.Price,
+(o.Quantity * p.Price) as TotalAmount
+from orders as o
+left join customers as c
+on o.CustomerID = c.CustomerID
+left join products as p
+on o.ProductID = p.ProductID
+);
 
-/* 8. Query the view to find the top 5 customers by total purchase amount */
 
-/* 9. Query a view to find monthly total sales */
-
-/* 10. Update data using a view and identify when it is NOT allowed */
+/* 8. Query the view to find the top 3 customers by total purchase amount */
+select 
+CustomerName,
+sum(TotalAmount) as TotalPurchases
+from details
+where CustomerName != ' '
+group by CustomerName
+order by sum(TotalAmount) desc
+limit 3;
 
 /* 11. Drop and recreate a view by adding an extra calculated column */
+drop view details;
+
+create view details as
+(
+select
+o.OrderID,
+concat(coalesce( c.FirstName, ' '),' ',coalesce(c.LastName,' ')) as CustomerName,
+p.Product,
+o.Quantity,
+p.Price,
+(o.Quantity * p.Price) as TotalAmount,
+OrderStatus
+from orders as o
+left join customers as c
+on o.CustomerID = c.CustomerID
+left join products as p
+on o.ProductID = p.ProductID
+);
+select * from details;
 
 /* -------------------- CTAS -------------------- */
 
 /* 12. Create a table using CTAS that stores only completed orders */
+create table ctasdetails
+(
+select
+*
+from details
+where OrderStatus = 'Delivered'
+);
 
-/* 13. Use CTAS to create a backup table of the customers table */
+select * from ctasdetails;
+
+/* 13. Use CTAS to create a backup  temp table of the customers table */
+create temporary table tempcustomer as
+select *
+from customers;
+
 
 /* 14. Create a reporting table using CTAS that stores
        customer-wise total sales */
+create table reporttable as
+select 
+CustomerName,
+sum(TotalAmount) as Totalsales
+from details
+group by CustomerName;
 
 /* 15. After using CTAS, add a primary key to the new table */
 
+create table reporttable as
+select 
+CustomerName,
+sum(TotalAmount) as Totalsales
+from details
+group by CustomerName;
 
+alter table reporttable
+add primary key (CustomerName);
